@@ -1,0 +1,76 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+
+#preview {
+    display: none;
+}
+
+#canvas {
+    height: 480px;
+    width: 360px;
+}
+
+body {
+    font-size: 1rem;
+    background: #000;
+    color: #fff;
+}
+
+p {
+    font-size: inherit;
+}
+
+#controller {
+    text-align: center;
+}
+
+input {
+    width: 90%;
+}
+
+#r input {
+    color: #faa;
+    background: #a77;
+}
+
+
+#g input {
+    color: #afa;
+    background: #7a7;
+}
+
+
+#b input {
+    color: #aaf;
+    background: #77a;
+}
+
+.button {
+    display: inline-block;
+    width: 30%;
+    background: #888;
+    text-align: center;
+    height: 40px;
+}
+
+
+#viewColor {
+    font-size: 1000%;
+}
+
+#iro{
+    text-align: left;
+    float:left;
+}
+
+#camera {
+    background-image: -moz-linear-gradient(-60deg,red,blue);
+}
+
+#controller {
+    text-align: left;
+    float:left;
+}
