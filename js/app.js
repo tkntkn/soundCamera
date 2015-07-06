@@ -4,6 +4,9 @@ var canvas = document.querySelector("#canvas");
 var video = document.querySelector("#preview");
 var log = document.querySelector("#log");
 var context;
+var oscillator;
+var gainNode;
+var filter;
  
 var ctx = canvas.getContext("2d");
 
@@ -41,42 +44,53 @@ function checkColor(event){
  
 function update(){
 	if (video.readyState == 4){
-			ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      document.body.style.backgroundColor = "rgb("+colors[0]+","+colors[1]+","+colors[2]+")";
-	}
+		ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     checkColor();	
-  	requestAnimationFrame(update);
+    document.body.style.backgroundColor = "rgb("+colors[0]+","+colors[1]+","+colors[2]+")";
+    
+    audio();
+	}
+  requestAnimationFrame(update);
 }
  
 function streamAcquired(stream){
     video.src = window.URL.createObjectURL(stream);
-
     video.play();
   	setTimeout(update,1000);
-    setTimeout(audio,1000);
 }
  
 function error(msg){
   console.log(msg);
+}
+
+function initAudioContext(){
+  try{    
+    context = new AudioContext();
+    oscillator = context.createOscillator();
+    gainNode = context.createGain();
+    filter = context.createBiquadFilter();
+    filter.Q.value = 100;
+    oscillator.connect(gainNode);
+    gainNode.connect(filter);
+    filter.connect(context.destination);
+    
+    oscillator.start();
+  } catch(e) {
+    console.log(e);
+  }
+  context.samplingRate = 48000;
 }
  
 function initialize(){
   navigator.getUserMedia = 
     navigator.getUserMedia ||
     navigator.mozGetUserMedia;
- 
+  
   navigator.getUserMedia({video: true, audio:false},
                          streamAcquired,
                          error);
 
-
-    try{    
-        context = new AudioContext();
-    } catch(e) {
-        console.log(e);
-    }
-    context.samplingRate = 48000;
-  console.log(context);
+  initAudioContext();
 }
  
 canvas.addEventListener("click", setPosition);
@@ -110,35 +124,8 @@ function getFilterFreq(color3) {
 }
 
 function audio(){
-    var buffer = context.createBuffer( 1, 48000, 48000 );
-    var channel = buffer.getChannelData(0);
-    //周波数
-    for( var i=0; i < channel.length; i++ )
-    {
-        channel[i] = Math.sin( i / 48000 * getFreq(colors[0]) * 2 * Math.PI);//色1
-    }
-    var src = context.createBufferSource();
-    src.buffer = buffer;
-    src.connect(context.destination);
-    src.addEventListener("ended", function(){
-      gainNode.disconnect();
-      src.disconnect();
-      audio();
-    });
-    
-    //音量
-    var gainNode = context.createGain();
-    src.connect(gainNode);
-    gainNode.connect(context.destination);
-    gainNode.gain.value = getVolume(colors[1]);//色2
-    
-    //フィルター
-    var filter = context.createBiquadFilter();
-    src.connect(filter);
-    filter.connect(context.destination);
-    filter.type = getFilterType(colors[2]);//色3
-    filter.frequency.value = getFilterFreq(colors[2]);//色3
-    filter.Q.value = 100;
-    
-    src.start(context.currentTime);
-};
+  oscillator.frequency.value = getFreq(colors[0] * 2);
+  gainNode.gain.value = getVolume(colors[1]);//色2
+  filter.type = getFilterType(colors[2]);//色3
+  filter.frequency.value = getFilterFreq(colors[2]);//色3
+}
