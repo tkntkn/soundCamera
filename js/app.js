@@ -40,8 +40,13 @@ function checkColor(event){
     colors[0] + "," +
     colors[1] + "," +
     colors[2];
+  setColor(colors[0],colors[1],colors[2]);
 }
- 
+function setColor(r,g,b){
+  document.getElementById('r').innerHTML = r;
+  document.getElementById('g').innerHTML = g;
+  document.getElementById('b').innerHTML = b;
+} 
 function update(){
 	if (video.readyState == 4){
 		ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
